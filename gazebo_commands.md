@@ -1,11 +1,11 @@
 # Starter's Guide to Map
-1. Launch the robot and world
+## 1. Launch the robot and world
     ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
 
-2. Launch SLAM
+## 2. Launch SLAM
     ros2 launch slam_toolbox online_async_launch.py
 
-3. Can check available topics
+## Can check available topics
     ros2 topic list
 
 4. Make sure to have made the waypoint_commander package as in Lab 4

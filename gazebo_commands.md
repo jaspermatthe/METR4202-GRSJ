@@ -5,14 +5,14 @@
 ## 2. Launch SLAM
     ros2 launch slam_toolbox online_async_launch.py
 
-## Can check available topics
+## 3. Can check available topics
     ros2 topic list
 
-4. Make sure to have made the waypoint_commander package as in Lab 4
+## 4. Make sure to have made the waypoint_commander package as in Lab 4
 
-5. Copy paste the reshape_map.py file into the waypoint_commander/waypoint_commander folder
+## 5. Copy paste the reshape_map.py file into the waypoint_commander/waypoint_commander folder
 
-6. in the setup.py of the waypoint_commander folder, make sure to have reshape_map as a console_script...
+## 6. in the setup.py of the waypoint_commander folder, make sure to have reshape_map as a console_script...
     entry_points={
             'console_scripts': [
                 'waypoint_cycler = waypoint_commander.waypoint_cycler:main',
@@ -20,12 +20,12 @@
             ],
         },
 
-7. Run this in command line:
+## 7. Run this in command line:
     colcon build --symlink-install --packages-select waypoint_commander
 
-8. Run in command line to run the python file
+## 8. Run in command line to run the python file
     ros2 run waypoint_commander reshape_map
-8. OR just brute force
+## 8. OR just brute force
     python3 FULL/PATH/TO/PYTHON_FILE
 
 # Other Useful Commands

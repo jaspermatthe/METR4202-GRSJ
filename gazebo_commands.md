@@ -34,7 +34,7 @@
 
     source ~/.bashrc
 
-To move the bot to specified position and orientation
+# To move the bot to specified position and orientation
     ros2 topic pub -1 /goal_pose geometry_msgs/PoseStamped "{header: {frame_id: 'map'}, pose: {position: {x: 1.7, y: -0.5}, orientation: {w: 1.0}}}"
 
 

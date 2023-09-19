@@ -2,7 +2,7 @@
 ## 1. Launch the robot and world
     ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
 
-## 2. Launch SLAM and navigation stack
+## 2. Launch SLAM
     ros2 launch slam_toolbox online_async_launch.py
     
 ## 2. Launch navigation stack

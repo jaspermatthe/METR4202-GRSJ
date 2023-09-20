@@ -2,10 +2,18 @@ import rclpy
 from rclpy.node import Node
 from nav_msgs.msg import OccupancyGrid
 import numpy as np
+import tf2_ros
+from geometry_msgs.msg import PoseStamped
+from tf2_geometry_msgs import do_transform_pose
+from nav2_msgs.msg import NavigateToPose
 
 class ExplorerNode(Node):
     def __init__(self):
         super().__init__('explorer_node')
+        self.tf_buffer = tf2_ros.Buffer()
+        self.tf_listener = tf2_ros.TransformListener(self.tf_buffer)
+        self.waypoint_publisher = self.create_publisher(
+            NavigateToPose, 'navigate_to_pose', 10)
 
         self.subscription = self.create_subscription(
             OccupancyGrid,
@@ -63,11 +71,46 @@ class ExplorerNode(Node):
         return False
 
     def get_robot_position(self, map_origin):
-        # Implement logic to get the robot's current position in the map
+        try:
+            # Get the transform from the robot's frame to the map frame
+            transform = self.tf_buffer.lookup_transform(
+                'map',  # Target frame (map frame)
+                'base_link',  # Source frame (robot's base frame)
+                rclpy.time.Time(0),
+                rclpy.duration.Duration(1.0)
+            )
 
-    def navigate_to_goal(self, goal_pose):
-        # Implement navigation to the goal_pose using move_base or similar
-        # Implement obstacle avoidance using the LaserScan data
+            # Create a PoseStamped message representing the robot's position
+            robot_pose = PoseStamped()
+            robot_pose.header.frame_id = 'base_link'
+            robot_pose.pose.position.x = 0.0  # Initialize to zero
+            robot_pose.pose.position.y = 0.0
+            robot_pose.pose.orientation.w = 1.0
+
+            # Transform the robot's pose to the map frame
+            transformed_pose = do_transform_pose(robot_pose, transform)
+
+            # Calculate the robot's position in the map frame
+            robot_x = transformed_pose.pose.position.x + map_origin.x
+            robot_y = transformed_pose.pose.position.y + map_origin.y
+
+            return (robot_x, robot_y)
+        except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+            self.get_logger().warn("Error getting robot position.")
+            return None
+
+    def navigate_to_waypoint(self, waypoint):
+        if waypoint is not None:
+            goal = PoseStamped()
+            goal.header.frame_id = 'map'
+            goal.pose.position.x = waypoint[0]
+            goal.pose.position.y = waypoint[1]
+            goal.pose.orientation.w = 1.0
+
+            navigate_msg = NavigateToPose()
+            navigate_msg.target_pose = goal
+
+            self.waypoint_publisher.publish(navigate_msg)
 
 def main(args=None):
     rclpy.init(args=args)

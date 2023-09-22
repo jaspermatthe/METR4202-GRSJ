@@ -9,3 +9,7 @@
 - 
 - Adjust waypoint_cycler.py to navigate between random frontiers for now
 - Adjust strategy as you debug
+
+## When exploration fails...
+- can subscribe to BehaviourTreeLog's NavigateRecovery. when this is 'IDLE' either achieved goal pose or experienced a planning or execution failure
+- 

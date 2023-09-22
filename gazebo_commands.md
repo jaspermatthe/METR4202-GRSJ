@@ -24,7 +24,7 @@ this was found on https://navigation.ros.org/tutorials/docs/navigation2_with_sla
             ],
         },
 
-## 7. Run this in command line:
+## 7. Run this in command line from the package's folder
     colcon build --symlink-install --packages-select waypoint_commander
 
 ## 8. Run in command line to run the python file

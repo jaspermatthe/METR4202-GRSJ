@@ -1,17 +1,4 @@
 # Starter's Guide to Map
-## Launch the robot and world
-    ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
-
-## Launch SLAM
-    ros2 launch slam_toolbox online_async_launch.py
-    
-## Launch navigation stack
-    ros2 launch nav2_bringup navigation_launch.py
-this was found on https://navigation.ros.org/tutorials/docs/navigation2_with_slam.html
-
-## Can check available topics to see if subscriptions/publications are working
-    ros2 topic list
-
 ## Create a new "map_explorer" package as in Lab 4:
 ### cd to your workspace
     cd path/to/your/turtlebot3_ws/src/
@@ -29,6 +16,20 @@ this was found on https://navigation.ros.org/tutorials/docs/navigation2_with_sla
                 'map_explorer = map_explorer.map_explorer:main',
             ],
         },
+
+
+## Launch the robot and world
+    ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+
+## Launch SLAM
+    ros2 launch slam_toolbox online_async_launch.py
+    
+## Launch navigation stack
+    ros2 launch nav2_bringup navigation_launch.py
+this was found on https://navigation.ros.org/tutorials/docs/navigation2_with_slam.html
+
+## Can check available topics to see if subscriptions/publications are working
+    ros2 topic list
 
 ## Run the following in command line from the package's folder
     colcon build --symlink-install --packages-select map_explorer

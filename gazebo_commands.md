@@ -11,7 +11,7 @@
 ### make map_explorer python file
     touch map_explorer.py
 
-## Copy paste all the code in the "map_explorer_jasper.py" file into your newly created "map_explorer.py" file and save it
+## Copy paste all the code in the "map_explorer_jasper.py" https://github.com/jaspermatthe/METR4202-GRSJ/blob/main/map_explorer_jasper.py  file into your newly created "map_explorer.py" file and save it
 
 ## In the setup.py of the map_explorer folder, make sure to have map_explorer as a console_script...
     entry_points={

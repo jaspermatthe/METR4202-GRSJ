@@ -42,7 +42,7 @@ this was found on https://navigation.ros.org/tutorials/docs/navigation2_with_sla
     source install/setup.bash
 
 ## Run in command line to run the map_explorer python file
-    ros2 run waypoint_commander map_explorer
+    ros2 run map_explorer map_explorer
     
 ## OR just brute force
     python3 FULL/PATH/TO/PYTHON_FILE

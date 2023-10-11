@@ -1,11 +1,11 @@
 # Starter's Guide to Map
 ## Create a new "map_explorer" package as in Lab 4:
-### cd to your workspace
-    cd path/to/your/turtlebot3_ws/src/
+### cd to your workspace (change /path/to/your/ accordingly)
+    cd /path/to/your/ros_ws/src
 ### create package
-    ros2 pkg create --build-type ament_python map_explorer dependencies rclpy nav2_msgs geometry_msgs
+    ros2 pkg create --build-type ament_python map_explorer --dependencies rclpy nav2_msgs geometry_msgs
     
-### make python file
+### make python file (change /path/to/your/ accordingly)
     cd /path/to/your/ros_ws/src/map_explorer/map_explorer touch map_explorer.py
 
 ## Copy paste all the code in the "map_explorer_jasper.py" file into your newly created "map_explorer.py" file and save it

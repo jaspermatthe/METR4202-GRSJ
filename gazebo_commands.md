@@ -22,6 +22,7 @@
 
 
 ## Launch the robot and world
+    export TURTLEBOT3_MODEL=waffle_pi
     ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
 
 ## Launch SLAM

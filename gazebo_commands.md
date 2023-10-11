@@ -9,38 +9,48 @@
     ros2 launch nav2_bringup navigation_launch.py
 this was found on https://navigation.ros.org/tutorials/docs/navigation2_with_slam.html
 
-## Can check available topics
+## Can check available topics to see if subscriptions/publications are working
     ros2 topic list
 
-## Make sure to have made the waypoint_commander package as in Lab 4
+## Create a new "map_explorer" package as in Lab 4:
+### cd to your workspace
+    cd path/to/your/turtlebot3_ws/src/
+### create package
+    ros2 pkg create --build-type ament_python map_explorer dependencies rclpy nav2_msgs geometry_msgs
+    
+### make python file
+    cd /path/to/your/ros_ws/src/map_explorer/map_explorer touch map_explorer.py
 
-## Copy paste the reshape_map.py file into the waypoint_commander/waypoint_commander folder
+## Copy paste all the code in the "map_explorer_jasper.py" file into your newly created "map_explorer.py" file and save it
 
-## In the setup.py of the waypoint_commander folder, make sure to have reshape_map as a console_script...
+## In the setup.py of the map_explorer folder, make sure to have map_explorer as a console_script...
     entry_points={
             'console_scripts': [
-                'waypoint_cycler = waypoint_commander.waypoint_cycler:main',
-                'reshape_map = waypoint_commander.reshape_map:main',
+                'map_explorer = map_explorer.map_explorer:main',
             ],
         },
 
-## Run this in command line from the package's folder
-    colcon build --symlink-install --packages-select waypoint_commander
+## Run the following in command line from the package's folder
+    colcon build --symlink-install --packages-select map_explorer
 
 ## MAKE SURE TO SOURCE SETUP FILE
     source install/setup.bash
 
-## Run in command line to run the python file
-    ros2 run waypoint_commander reshape_map
+## Run in command line to run the map_explorer python file
+    ros2 run waypoint_commander map_explorer
+    
 ## OR just brute force
     python3 FULL/PATH/TO/PYTHON_FILE
 
+# OTHER USEFUL COMMANDS
 ## Move the bot to specified position and orientation
     ros2 topic pub -1 /goal_pose geometry_msgs/PoseStamped "{header: {frame_id: 'map'}, pose: {position: {x: 1.7, y: -0.5}, orientation: {w: 1.0}}}"
 
-# Other Useful Commands
+## echo topics
     ros2 topic echo /map
+## teleop keyboard
     ros2 run turtlebot3_teleop teleop_keyboard
+## bashrc
     source ~/.bashrc
 
 

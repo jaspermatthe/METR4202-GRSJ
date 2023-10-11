@@ -21,21 +21,21 @@
         },
 
 
-## Launch the robot and world
+## in a new terminal Launch the robot and world
     export TURTLEBOT3_MODEL=waffle_pi
     ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
 
-## Launch SLAM
+## in a new terminal Launch SLAM
     ros2 launch slam_toolbox online_async_launch.py
     
-## Launch navigation stack
+## in a new terminal Launch navigation stack
     ros2 launch nav2_bringup navigation_launch.py
 this was found on https://navigation.ros.org/tutorials/docs/navigation2_with_slam.html
 
 ## Can check available topics to see if subscriptions/publications are working
     ros2 topic list
 
-## Run the following in command line from the package's folder
+## in a new terminal Run the following in command line from the package's folder
     colcon build --symlink-install --packages-select map_explorer
 
 ## MAKE SURE TO SOURCE SETUP FILE

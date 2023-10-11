@@ -58,4 +58,8 @@ this was found on https://navigation.ros.org/tutorials/docs/navigation2_with_sla
 ## bashrc
     source ~/.bashrc
 
+## one-liner
+    gnome-terminal -- bash -c "export TURTLEBOT3_MODEL=waffle_pi; ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py" -- bash -c "ros2 launch slam_toolbox online_async_launch.py" -- bash -c "ros2 launch nav2_bringup navigation_launch.py" -- bash -c "colcon build --symlink-install --packages-select map_explorer; source install/setup.bash; ros2 run map_explorer map_explorer" -- bash -c "ros2 topic pub -1 /goal_pose geometry_msgs/PoseStamped '{header: {frame_id: map}, pose: {position: {x: 1.7, y: -0.5}, orientation: {w: 1.0}}}'"
+
+
 

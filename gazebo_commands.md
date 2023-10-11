@@ -5,8 +5,11 @@
 ### create package
     ros2 pkg create --build-type ament_python map_explorer --dependencies rclpy nav2_msgs geometry_msgs
     
-### make python file (change /path/to/your/ accordingly)
-    cd /path/to/your/ros_ws/src/map_explorer/map_explorer touch map_explorer.py
+### cd to inner package map_explorer folder (change /path/to/your/ accordingly)
+    cd /path/to/your/ros_ws/src/map_explorer/map_explorer
+    
+### make map_explorer python file
+    touch map_explorer.py
 
 ## Copy paste all the code in the "map_explorer_jasper.py" file into your newly created "map_explorer.py" file and save it
 

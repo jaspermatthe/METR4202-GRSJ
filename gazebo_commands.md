@@ -1,12 +1,12 @@
 # Starter's Guide to Map
 ## Create a new "map_explorer" package as in Lab 4:
 ### cd to your workspace (change /path/to/your/ accordingly)
-    cd /path/to/your/ros_ws/src
+    cd path/to/your/ros_ws/src
 ### create package
     ros2 pkg create --build-type ament_python map_explorer --dependencies rclpy nav2_msgs geometry_msgs
     
 ### cd to inner package map_explorer folder (change /path/to/your/ accordingly)
-    cd /path/to/your/ros_ws/src/map_explorer/map_explorer
+    cd path/to/your/ros_ws/src/map_explorer/map_explorer
     
 ### make map_explorer python file
     touch map_explorer.py

@@ -13,6 +13,11 @@ class MapExplorer(Node):
         # super() allows the MapExplorer class to inherit all methods and properties from the Node class
         super().__init__('map_explorer')
 
+        # initialise values else error
+        self.map_data = None  # Initialize map_data to None
+        self.map_height = 0  # Initialize map_height to 0
+        self.map_width = 0  # Initialize map_width to 0
+
         self.subscription = self.create_subscription(
             OccupancyGrid,
             '/map', 
@@ -34,6 +39,9 @@ class MapExplorer(Node):
             10
         )
 
+        # creating the explored grid with the same dimensions as the map
+        self.explored_grid = np.full((self.map_height, self.map_width), -1)
+
 
     def listener_callback(self, msg):
         # called each time a message is received by the subscription
@@ -48,6 +56,16 @@ class MapExplorer(Node):
 
         self.map_2d_array = np.array(self.map_data.data).reshape((self.map_height, self.map_width))
 
+        # update the explored grid
+        self.explored_grid = np.full((self.map_height, self.map_width), -1)
+
+        for x in range(self.map_width):
+            for y in range(self.map_height):
+                if self.map_2d_array[y, x] == -1 and self.explored_grid[y, x] == -1:
+                    # check if the cell is unexplored and hasn't been visited
+                    # maybe check also nearby cells?
+                    self.explored_grid[y, x] = 0
+                    self.frontier_finder()
 
         # call update frontiers
         self.frontier_finder()

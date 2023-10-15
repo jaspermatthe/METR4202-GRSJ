@@ -1,0 +1,28 @@
+# Keeping track of where we've been
+
+class MapExplorer(Node):
+    def __init__(self):
+        # ... (your existing code)
+
+        # Create a visited grid with the same dimensions as the map
+        self.visited_grid = np.zeros((self.map_height, self.map_width), dtype=bool)
+
+    def update_waypoints(self):
+        if not self.scores:
+            return  # No scores available, nothing to publish
+
+        # Find the highest score frontier that has not been visited
+        unvisited_frontiers = [frontier for frontier in self.frontiers if not self.visited_grid[frontier]]
+        if not unvisited_frontiers:
+            # All frontiers have been visited, stop the exploration or take appropriate action
+            return
+
+        highest_score_frontier = max(unvisited_frontiers, key=self.scores.get)
+        x, y = highest_score_frontier
+
+        # Update the visited grid
+        self.visited_grid[y, x] = True
+
+        # Rest of your code...
+
+

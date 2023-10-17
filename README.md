@@ -1,4 +1,4 @@
-## 1. clone the repository into your ws/src folder
+## 1. clone the map_explorer repository into your ws/src folder
 
 ## in a new terminal Launch the robot and world
     export TURTLEBOT3_MODEL=waffle_pi

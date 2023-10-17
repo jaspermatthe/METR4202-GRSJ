@@ -1,0 +1,26 @@
+running develop
+/usr/lib/python3/dist-packages/setuptools/command/easy_install.py:158: EasyInstallDeprecationWarning: easy_install command is deprecated. Use build and pip and other standards-based tools.
+  warnings.warn(
+/usr/lib/python3/dist-packages/setuptools/command/install.py:34: SetuptoolsDeprecationWarning: setup.py install is deprecated. Use build and pip and other standards-based tools.
+  warnings.warn(
+running egg_info
+creating map_explorer.egg-info
+writing map_explorer.egg-info/PKG-INFO
+writing dependency_links to map_explorer.egg-info/dependency_links.txt
+writing entry points to map_explorer.egg-info/entry_points.txt
+writing requirements to map_explorer.egg-info/requires.txt
+writing top-level names to map_explorer.egg-info/top_level.txt
+writing manifest file 'map_explorer.egg-info/SOURCES.txt'
+reading manifest file 'map_explorer.egg-info/SOURCES.txt'
+writing manifest file 'map_explorer.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/jasper/turtlebot3_ws/src/map_explorer/install/map_explorer/lib/python3.10/site-packages/map-explorer.egg-link (link to .)
+Installing waypoint_cycler script to /home/jasper/turtlebot3_ws/src/map_explorer/install/map_explorer/lib/map_explorer
+
+Installed /home/jasper/turtlebot3_ws/src/map_explorer/build/map_explorer
+running install_data
+creating /home/jasper/turtlebot3_ws/src/map_explorer/install/map_explorer/share/ament_index
+creating /home/jasper/turtlebot3_ws/src/map_explorer/install/map_explorer/share/ament_index/resource_index
+creating /home/jasper/turtlebot3_ws/src/map_explorer/install/map_explorer/share/ament_index/resource_index/packages
+copying resource/map_explorer -> /home/jasper/turtlebot3_ws/src/map_explorer/install/map_explorer/share/ament_index/resource_index/packages
+copying package.xml -> /home/jasper/turtlebot3_ws/src/map_explorer/install/map_explorer/share/map_explorer

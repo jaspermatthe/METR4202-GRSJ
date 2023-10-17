@@ -1,0 +1,17 @@
+running develop
+running egg_info
+writing map_explorer.egg-info/PKG-INFO
+writing dependency_links to map_explorer.egg-info/dependency_links.txt
+writing entry points to map_explorer.egg-info/entry_points.txt
+writing requirements to map_explorer.egg-info/requires.txt
+writing top-level names to map_explorer.egg-info/top_level.txt
+reading manifest file 'map_explorer.egg-info/SOURCES.txt'
+writing manifest file 'map_explorer.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/jasper/turtlebot3_ws/src/map_explorer/install/map_explorer/lib/python3.10/site-packages/map-explorer.egg-link (link to .)
+Installing map_explorer_jasper script to /home/jasper/turtlebot3_ws/src/map_explorer/install/map_explorer/lib/map_explorer
+Installing ramtintest script to /home/jasper/turtlebot3_ws/src/map_explorer/install/map_explorer/lib/map_explorer
+Installing waypoint_cycler script to /home/jasper/turtlebot3_ws/src/map_explorer/install/map_explorer/lib/map_explorer
+
+Installed /home/jasper/turtlebot3_ws/src/map_explorer/build/map_explorer
+running install_data

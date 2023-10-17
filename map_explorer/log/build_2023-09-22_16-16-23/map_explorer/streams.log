@@ -1,0 +1,37 @@
+[0.821s] Invoking command in '/home/jasper/turtlebot3_ws/src/map_explorer/build/map_explorer': PYTHONPATH=/home/jasper/turtlebot3_ws/src/map_explorer/build/map_explorer/prefix_override:/home/jasper/turtlebot3_ws/src/map_explorer/install/map_explorer/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py develop --editable --build-directory /home/jasper/turtlebot3_ws/src/map_explorer/build/map_explorer/build --no-deps install_data
+[1.160s] Traceback (most recent call last):
+[1.160s]   File "/home/jasper/turtlebot3_ws/src/map_explorer/build/map_explorer/setup.py", line 5, in <module>
+[1.160s]     setup(
+[1.160s]   File "/usr/lib/python3/dist-packages/setuptools/__init__.py", line 153, in setup
+[1.160s]     return distutils.core.setup(**attrs)
+[1.160s]   File "/usr/lib/python3.10/distutils/core.py", line 134, in setup
+[1.160s]     ok = dist.parse_command_line()
+[1.160s]   File "/usr/lib/python3.10/distutils/dist.py", line 483, in parse_command_line
+[1.161s]     args = self._parse_command_opts(parser, args)
+[1.161s]   File "/usr/lib/python3/dist-packages/setuptools/dist.py", line 1048, in _parse_command_opts
+[1.161s]     nargs = _Distribution._parse_command_opts(self, parser, args)
+[1.161s]   File "/usr/lib/python3.10/distutils/dist.py", line 539, in _parse_command_opts
+[1.161s]     cmd_class = self.get_command_class(command)
+[1.161s]   File "/usr/lib/python3/dist-packages/setuptools/dist.py", line 893, in get_command_class
+[1.161s]     self.cmdclass[command] = cmdclass = ep.load()
+[1.161s]   File "/usr/lib/python3/dist-packages/pkg_resources/__init__.py", line 2465, in load
+[1.162s]     return self.resolve()
+[1.162s]   File "/usr/lib/python3/dist-packages/pkg_resources/__init__.py", line 2471, in resolve
+[1.163s]     module = __import__(self.module_name, fromlist=['__name__'], level=0)
+[1.163s]   File "/usr/lib/python3/dist-packages/setuptools/command/develop.py", line 9, in <module>
+[1.163s]     from setuptools.command.easy_install import easy_install
+[1.163s]   File "/usr/lib/python3/dist-packages/setuptools/command/easy_install.py", line 52, in <module>
+[1.163s]     from setuptools.package_index import (
+[1.163s]   File "/usr/lib/python3/dist-packages/setuptools/package_index.py", line 29, in <module>
+[1.163s]     from setuptools.wheel import Wheel
+[1.163s]   File "/usr/lib/python3/dist-packages/setuptools/wheel.py", line 17, in <module>
+[1.163s]     from setuptools.command.egg_info import write_requirements
+[1.163s]   File "/usr/lib/python3/dist-packages/setuptools/command/egg_info.py", line 29, in <module>
+[1.164s]     from setuptools.glob import glob
+[1.164s]   File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+[1.164s]   File "<frozen importlib._bootstrap>", line 1006, in _find_and_load_unlocked
+[1.164s]   File "<frozen importlib._bootstrap>", line 674, in _load_unlocked
+[1.164s]   File "<frozen importlib._bootstrap>", line 577, in module_from_spec
+[1.164s]   File "<frozen importlib._bootstrap>", line 541, in _init_module_attrs
+[1.164s] KeyboardInterrupt
+[1.201s] Invoked command in '/home/jasper/turtlebot3_ws/src/map_explorer/build/map_explorer' returned '-2': PYTHONPATH=/home/jasper/turtlebot3_ws/src/map_explorer/build/map_explorer/prefix_override:/home/jasper/turtlebot3_ws/src/map_explorer/install/map_explorer/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py develop --editable --build-directory /home/jasper/turtlebot3_ws/src/map_explorer/build/map_explorer/build --no-deps install_data

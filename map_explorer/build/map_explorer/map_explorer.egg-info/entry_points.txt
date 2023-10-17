@@ -1,0 +1,5 @@
+[console_scripts]
+map_explorer_jasper = map_explorer.map_explorer_jasper:main
+ramtintest = map_explorer.ramtintest:main
+waypoint_cycler = map_explorer.waypoint_cycler:main
+

@@ -1,0 +1,22 @@
+[0.490s] Invoking command in '/home/jasper/turtlebot3_ws/src/map_explorer/build/map_explorer': PYTHONPATH=/home/jasper/turtlebot3_ws/src/map_explorer/build/map_explorer/prefix_override:/home/jasper/turtlebot3_ws/src/map_explorer/install/map_explorer/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py develop --editable --build-directory /home/jasper/turtlebot3_ws/src/map_explorer/build/map_explorer/build --no-deps install_data
+[0.697s] running develop
+[0.697s] /usr/lib/python3/dist-packages/setuptools/command/easy_install.py:158: EasyInstallDeprecationWarning: easy_install command is deprecated. Use build and pip and other standards-based tools.
+[0.697s]   warnings.warn(
+[0.698s] /usr/lib/python3/dist-packages/setuptools/command/install.py:34: SetuptoolsDeprecationWarning: setup.py install is deprecated. Use build and pip and other standards-based tools.
+[0.698s]   warnings.warn(
+[0.842s] running egg_info
+[0.843s] writing map_explorer.egg-info/PKG-INFO
+[0.843s] writing dependency_links to map_explorer.egg-info/dependency_links.txt
+[0.843s] writing entry points to map_explorer.egg-info/entry_points.txt
+[0.843s] writing requirements to map_explorer.egg-info/requires.txt
+[0.843s] writing top-level names to map_explorer.egg-info/top_level.txt
+[0.845s] reading manifest file 'map_explorer.egg-info/SOURCES.txt'
+[0.846s] writing manifest file 'map_explorer.egg-info/SOURCES.txt'
+[0.847s] running build_ext
+[0.847s] Creating /home/jasper/turtlebot3_ws/src/map_explorer/install/map_explorer/lib/python3.10/site-packages/map-explorer.egg-link (link to .)
+[0.848s] Installing ramtintest script to /home/jasper/turtlebot3_ws/src/map_explorer/install/map_explorer/lib/map_explorer
+[0.848s] Installing waypoint_cycler script to /home/jasper/turtlebot3_ws/src/map_explorer/install/map_explorer/lib/map_explorer
+[0.848s] 
+[0.848s] Installed /home/jasper/turtlebot3_ws/src/map_explorer/build/map_explorer
+[0.848s] running install_data
+[0.871s] Invoked command in '/home/jasper/turtlebot3_ws/src/map_explorer/build/map_explorer' returned '0': PYTHONPATH=/home/jasper/turtlebot3_ws/src/map_explorer/build/map_explorer/prefix_override:/home/jasper/turtlebot3_ws/src/map_explorer/install/map_explorer/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py develop --editable --build-directory /home/jasper/turtlebot3_ws/src/map_explorer/build/map_explorer/build --no-deps install_data

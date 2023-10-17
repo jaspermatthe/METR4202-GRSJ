@@ -5,6 +5,7 @@ from nav_msgs.msg import OccupancyGrid
 from geometry_msgs.msg import PoseStamped
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 class MapExplorer(Node):
 
@@ -18,30 +19,33 @@ class MapExplorer(Node):
         self.map_height = 0  # Initialize map_height to 0
         self.map_width = 0  # Initialize map_width to 0
 
-        self.subscription = self.create_subscription(
+        self.map_subscription = self.create_subscription(
             OccupancyGrid,
             '/map', 
             self.listener_callback,
-            10)
+            50)
         
-        self.subscription = self.create_subscription(
+        self.bt_subscription = self.create_subscription(
             BehaviorTreeLog,
-            'behaviour_tree_log',
+            'behavior_tree_log',
             self.bt_log_callback,
-            10
+            50
         )
 
-        self.subscription  # prevent unused variable warning
+        self.map_subscription  # prevent unused variable warning
+        self.bt_subscription  # prevent unused variable warning
+
 
         self.publisher_ = self.create_publisher(
             PoseStamped,
             'goal_pose',
-            10
+            50
         )
 
         # creating the explored grid with the same dimensions as the map
         self.explored_grid = np.full((self.map_height, self.map_width), -1)
 
+        self.path_compute_error = False
 
     def listener_callback(self, msg):
         # called each time a message is received by the subscription
@@ -58,14 +62,6 @@ class MapExplorer(Node):
 
         # update the explored grid
         self.explored_grid = np.full((self.map_height, self.map_width), -1)
-
-        for x in range(self.map_width):
-            for y in range(self.map_height):
-                if self.map_2d_array[y, x] == -1 and self.explored_grid[y, x] == -1:
-                    # check if the cell is unexplored and hasn't been visited
-                    # maybe check also nearby cells?
-                    self.explored_grid[y, x] = 0
-                    self.frontier_finder()
 
         # call update frontiers
         self.frontier_finder()
@@ -97,8 +93,9 @@ class MapExplorer(Node):
         # Create a Matplotlib figure and axis
         fig, (ax1, ax2) = plt.subplots(1, 2)
 
-        # Use imshow to display the 2D array as an image with the specified colormap and norm
-        cax = ax1.imshow(self.map_2d_array, cmap=cmap, norm=norm)
+        # Rotate the map 90 degrees counterclockwise
+        rotated_map = np.rot90(self.map_2d_array, k=1)
+        cax = ax1.imshow(rotated_map, cmap=cmap, norm=norm)
 
         # Create a colorbar legend
         # cbar = plt.colorbar(cax, cmap=cmap, norm=norm, boundaries=bounds, ticks=[-1, 0, 100])
@@ -112,18 +109,29 @@ class MapExplorer(Node):
         ax1.set_aspect('equal')
         ax2.set_aspect('equal')
 
-        # Plot the frontiers in black as points on ax2
-        frontiers_x, frontiers_y = zip(*self.frontiers)
-        ax2.scatter(frontiers_x, frontiers_y, c='black', marker='o', s=10)
+        if self.frontiers:
+            # Plot the frontiers in black as points on ax2
+            frontiers_x, frontiers_y = zip(*self.frontiers)
+            ax2.scatter(frontiers_x, frontiers_y, c='black', marker='o', s=10)
 
-        highest_score_frontier = max(self.scores, key=self.scores.get)
-        x, y = highest_score_frontier
+        if self.scores: # make sure self.scores is not empty
+            highest_score_frontier = max(self.scores, key=self.scores.get)
+            x, y = highest_score_frontier
 
-        ax2.plot(x, y, color='pink', marker='x', linestyle='-')
+            ax2.plot(x, y, color='pink', marker='x', linestyle='-')
 
+            save_dir = "/home/jasper/turtlebot3_ws/src/map_explorer/map_explorer"
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir)
+            save_file = os.path.join(save_dir, "map_plot.png")
 
-        # Show the plot
-        plt.show()
+            # Save the plot as an image file
+            plt.savefig(save_file)
+
+            print(f"Saved figure to {save_file}")
+            # Close the Matplotlib figure to release resources
+            plt.close()
+
 
 
     def frontier_finder(self):
@@ -168,21 +176,42 @@ class MapExplorer(Node):
 
 
     ## function from METR4202 Tutorial 4 document
-    def bt_log_callback(self, msg: BehaviorTreeLog):
+    def bt_log_callback(self, msg:BehaviorTreeLog):
         # check navigation status, call send_waypoint if IDLE status
-
+        # print("in bt callback")
+        number_events = 0
         for event in msg.event_log:
-            if event.node_name == 'NavigateRecovery' and \
-                    event.current_status == 'IDLE':
+        #     number_events+=1
+        #     if event.node_name == 'NavigateRecovery' and event.current_status == 'IDLE':
+        #         print("found out that is idling")
+        #         self.update_waypoints()
+        # print(f'{number_events} events recorded')
+
+            # if in navigation recovery mode, update waypoint
+            if event.node_name == 'NavigateRecovery' and event.current_status == 'IDLE':
+                print("found out that NavigateRecovery is idling")
+                self.path_compute_error = True
                 self.update_waypoints()
 
 
 
     def update_waypoints(self):
+        print("updating waypoint")
         if not self.scores:
             return  # No scores available, nothing to publish
 
         highest_score_frontier = max(self.scores, key=self.scores.get)
+
+        # check if could not compute path to pose, then update waypoint to second highest score
+        if self.path_compute_error and self.scores: # add condition to check that self.scores is not empty
+            print(f"removing path error waypoint: {highest_score_frontier}")
+            self.scores.pop(highest_score_frontier)  # Remove the highest score frontier
+            if self.scores: # check that self.scores is not empty
+                highest_score_frontier = max(self.scores, key=self.scores.get)
+                print(f"now going to {highest_score_frontier}")
+            else:
+                print("done for the day")
+
         x, y = highest_score_frontier
 
         map_x, map_y = self.robot_to_map_coordinates(x, y)
@@ -190,11 +219,14 @@ class MapExplorer(Node):
         # Create the waypoint message
         waypoint_msg = PoseStamped()
         waypoint_msg.header.frame_id = "map"
-        print(f'x pose coordinate: {x}\n')
-        print(f'y pose coordinate: {y}\n')
+        print(f'(x,y) pose coordinate: {map_x}, {map_y}\n')
         waypoint_msg.pose.position.x = map_x  # Set x-coordinate
         waypoint_msg.pose.position.y = map_y  # Set y-coordinate
-        waypoint_msg.pose.orientation.w = 1.0  # Default orientation
+
+        # do 180 for fun
+        # if self.path_arrived:
+        #     print("I'm dancing \n \n \n \n \n I'm dancing!!!")
+        #     # waypoint_msg.pose.orientation.w = -1.0 * self.robot_z # 180 of current orientation
 
         # Publish the waypoint
         self.publisher_.publish(waypoint_msg)

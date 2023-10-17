@@ -47,6 +47,11 @@ this was found on https://navigation.ros.org/tutorials/docs/navigation2_with_sla
 ## OR just brute force
     python3 FULL/PATH/TO/PYTHON_FILE
 
+## to visualize occupancy grid mapped by the robot, uncomment the following line in the listener_callback function:
+    # plot occupancy grid
+    self.plot_map()
+
+
 # OTHER USEFUL COMMANDS
 ## Move the bot to specified position and orientation
     ros2 topic pub -1 /goal_pose geometry_msgs/PoseStamped "{header: {frame_id: 'map'}, pose: {position: {x: 1.7, y: -0.5}, orientation: {w: 1.0}}}"

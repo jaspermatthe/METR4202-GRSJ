@@ -1,4 +1,25 @@
-## 1. clone the repository into your ws/src folder
+# Starter's Guide to Map
+## Create a new "map_explorer" package as in Lab 4:
+### cd to your workspace (change /path/to/your/ accordingly)
+    cd path/to/your/ros_ws/src
+### create package
+    ros2 pkg create --build-type ament_python map_explorer --dependencies rclpy nav2_msgs geometry_msgs
+    
+### cd to inner package map_explorer folder (change /path/to/your/ accordingly)
+    cd path/to/your/ros_ws/src/map_explorer/map_explorer
+    
+### make map_explorer python file
+    touch map_explorer.py
+
+## Copy paste all the code in the "map_explorer_jasper.py" https://github.com/jaspermatthe/METR4202-GRSJ/blob/main/map_explorer_jasper.py  file into your newly created "map_explorer.py" file and save it
+
+## In the setup.py of the map_explorer folder, make sure to have map_explorer as a console_script...
+    entry_points={
+            'console_scripts': [
+                'map_explorer = map_explorer.map_explorer:main',
+            ],
+        },
+
 
 ## in a new terminal Launch the robot and world
     export TURTLEBOT3_MODEL=waffle_pi
@@ -14,7 +35,7 @@ this was found on https://navigation.ros.org/tutorials/docs/navigation2_with_sla
 ## Can check available topics to see if subscriptions/publications are working
     ros2 topic list
 
-## in a new terminal run the following in command line from the package's folder
+## in a new terminal Run the following in command line from the package's folder
     colcon build --symlink-install --packages-select map_explorer
 
 ## MAKE SURE TO SOURCE SETUP FILE

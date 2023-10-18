@@ -2,7 +2,7 @@ import rclpy
 from rclpy.node import Node
 from nav2_msgs.msg import BehaviorTreeLog
 from nav_msgs.msg import OccupancyGrid
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -32,21 +32,41 @@ class MapExplorer(Node):
             50
         )
 
+        self.pose_subscription = self.create_subscription(
+            PoseWithCovarianceStamped,
+            'pose',
+            self.pose_callback,
+            20
+        )
+
         self.map_subscription  # prevent unused variable warning
         self.bt_subscription  # prevent unused variable warning
+        self.pose_subscription # prevent unused variable warning
 
-
-        self.publisher_ = self.create_publisher(
+        self.pose_publisher_ = self.create_publisher(
             PoseStamped,
             'goal_pose',
             50
         )
+
+        self.pose_publisher_
 
         # creating the explored grid with the same dimensions as the map
         self.explored_grid = np.full((self.map_height, self.map_width), -1)
 
         self.path_compute_error = False
 
+        self.last_waypoint = []
+
+    def pose_callback(self, msg):
+        print("in pose callback")
+        # get robot position
+        self.robot_x = msg.pose.pose.position.x
+        self.robot_y = msg.pose.pose.position.y
+        self.robot_z = msg.pose.pose.position.z # not sure if z or w
+        print(f'x: {self.robot_x}, y: {self.robot_y}, z: {self.robot_z}')
+        return
+    
     def listener_callback(self, msg):
         # called each time a message is received by the subscription
         
@@ -90,11 +110,11 @@ class MapExplorer(Node):
         bounds = [-1, 0, 100, 101]  # Define the color boundaries
         norm = plt.cm.colors.BoundaryNorm(bounds, cmap.N)
 
-        # Create a Matplotlib figure and axis
+        # Create a Matplotlib figure and axes
         fig, (ax1, ax2) = plt.subplots(1, 2)
 
-        # Rotate the map 90 degrees counterclockwise
-        rotated_map = np.rot90(self.map_2d_array, k=1)
+        # Rotate the map 90 degrees counterclockwise and flip left-right to display properly
+        rotated_map =  np.fliplr(np.rot90(self.map_2d_array, k=1))
         cax = ax1.imshow(rotated_map, cmap=cmap, norm=norm)
 
         # Create a colorbar legend
@@ -110,15 +130,18 @@ class MapExplorer(Node):
         ax2.set_aspect('equal')
 
         if self.frontiers:
-            # Plot the frontiers in black as points on ax2
+            # Rotate the frontiers and plot them in black on ax2 in the opposite direction
             frontiers_x, frontiers_y = zip(*self.frontiers)
-            ax2.scatter(frontiers_x, frontiers_y, c='black', marker='o', s=10)
+            rotated_frontiers = [(self.map_height - y, self.map_width - x) for x, y in zip(frontiers_x, frontiers_y)]
+            ax2.scatter(*zip(*rotated_frontiers), c='black', marker='o', s=10)
 
         if self.scores: # make sure self.scores is not empty
             highest_score_frontier = max(self.scores, key=self.scores.get)
             x, y = highest_score_frontier
 
-            ax2.plot(x, y, color='pink', marker='x', linestyle='-')
+            # Rotate the highest score point and plot it on ax2 in the opposite direction
+            rotated_highest_score = (self.map_height - y, self.map_width - x)
+            ax2.plot(*rotated_highest_score, color='pink', marker='x', linestyle='-')
 
             save_dir = "/home/jasper/turtlebot3_ws/src/map_explorer/map_explorer"
             if not os.path.exists(save_dir):
@@ -131,6 +154,8 @@ class MapExplorer(Node):
             print(f"Saved figure to {save_file}")
             # Close the Matplotlib figure to release resources
             plt.close()
+
+
 
 
 
@@ -153,6 +178,7 @@ class MapExplorer(Node):
 
 
     def score_frontiers(self):
+
         self.scores = {}  # Use a dictionary to store scores for each frontier tuple
 
         for frontier in self.frontiers:
@@ -178,7 +204,7 @@ class MapExplorer(Node):
     ## function from METR4202 Tutorial 4 document
     def bt_log_callback(self, msg:BehaviorTreeLog):
         # check navigation status, call send_waypoint if IDLE status
-        # print("in bt callback")
+        print("in bt callback")
         number_events = 0
         for event in msg.event_log:
         #     number_events+=1
@@ -229,9 +255,11 @@ class MapExplorer(Node):
         #     # waypoint_msg.pose.orientation.w = -1.0 * self.robot_z # 180 of current orientation
 
         # Publish the waypoint
-        self.publisher_.publish(waypoint_msg)
+        self.pose_publisher_.publish(waypoint_msg)
 
         return None
+
+
 
 def main(args=None):
     rclpy.init(args=args)

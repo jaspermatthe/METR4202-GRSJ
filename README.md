@@ -1,3 +1,10 @@
+## Team 12
+Jasper Matthe 48161136
+Ramtin Radnia 45890921
+Gregorio Boccaccini 48175003
+Sajal Gururani 47395952
+
+
 ## 1. clone the map_explorer repository into your ws/src folder
 
 ## in a new terminal Launch the robot and world

@@ -14,11 +14,6 @@ class MapExplorer(Node):
         # super() allows the MapExplorer class to inherit all methods and properties from the Node class
         super().__init__('map_explorer')
 
-        # initialise values else error
-        self.map_data = None  # Initialize map_data to None
-        self.map_height = 0  # Initialize map_height to 0
-        self.map_width = 0  # Initialize map_width to 0
-
         self.map_subscription = self.create_subscription(
             OccupancyGrid,
             '/map', 

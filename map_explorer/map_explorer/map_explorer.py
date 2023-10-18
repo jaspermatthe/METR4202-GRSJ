@@ -143,7 +143,7 @@ class MapExplorer(Node):
             rotated_highest_score = (self.map_height - y, self.map_width - x)
             ax2.plot(*rotated_highest_score, color='pink', marker='x', linestyle='-')
 
-            save_dir = "/home/jasper/turtlebot3_ws/src/map_explorer/map_explorer"
+            save_dir = "/home/gbocca/ros2_ws/src/map_explorer/map_explorer"
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
             save_file = os.path.join(save_dir, "map_plot.png")

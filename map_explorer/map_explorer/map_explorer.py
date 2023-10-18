@@ -1,3 +1,4 @@
+# import necessary libraries
 import rclpy
 from rclpy.node import Node
 from nav2_msgs.msg import BehaviorTreeLog
@@ -14,17 +15,19 @@ class MapExplorer(Node):
         # super() allows the MapExplorer class to inherit all methods and properties from the Node class
         super().__init__('map_explorer')
 
-        # initialise values else error
-        self.map_data = None
-        self.map_width = 0
-        self.map_height = 0 
+        # initiaize the map-related variables to default/ None
+        self.map_data = None  # Holds map data (OccupancyGrid message)
+        self.map_height = 0  # Initialize map_height to 0
+        self.map_width = 0  # Initialize map_width to 0
 
+        # create a subscription to the '/map' topic to receive map data
         self.map_subscription = self.create_subscription(
             OccupancyGrid,
             '/map', 
             self.listener_callback,
             50)
-        
+
+        # create a subscription to the 'behavior_tree_log' topic to receive Behavior Tree lops
         self.bt_subscription = self.create_subscription(
             BehaviorTreeLog,
             'behavior_tree_log',
@@ -32,6 +35,7 @@ class MapExplorer(Node):
             50
         )
 
+        # create a subscription to the 'pose' topic to receive robot pose information 
         self.pose_subscription = self.create_subscription(
             PoseWithCovarianceStamped,
             'pose',
@@ -43,6 +47,7 @@ class MapExplorer(Node):
         self.bt_subscription  # prevent unused variable warning
         self.pose_subscription # prevent unused variable warning
 
+        # initialize the pose_publisher_ variable (used for publishing waypoints)
         self.pose_publisher_ = self.create_publisher(
             PoseStamped,
             'goal_pose',
@@ -51,11 +56,13 @@ class MapExplorer(Node):
 
         self.pose_publisher_
 
-        # creating the explored grid with the same dimensions as the map
+        # initialize the explored grid with the same dimensions as the map and -1 values
         self.explored_grid = np.full((self.map_height, self.map_width), -1)
 
+        # initialize a flag to track path computation errors
         self.path_compute_error = False
 
+        # initialize a variable to keep track of the last waypoint published 
         self.last_waypoint = []
 
     def pose_callback(self, msg):
@@ -143,7 +150,7 @@ class MapExplorer(Node):
             rotated_highest_score = (self.map_height - y, self.map_width - x)
             ax2.plot(*rotated_highest_score, color='pink', marker='x', linestyle='-')
 
-            save_dir = "/home/gbocca/ros2_ws/src/map_explorer/map_explorer"
+            save_dir = "/home/jasper/turtlebot3_ws/src/map_explorer/map_explorer"
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
             save_file = os.path.join(save_dir, "map_plot.png")
@@ -159,17 +166,19 @@ class MapExplorer(Node):
 
 
 
-    # Fix 8 point frontier to 4 point frontier
+    
     def frontier_finder(self):
         # for each -1 (unexplored) cell, see if neighboring 4 cells are 0, if so then mark the unexplored cell as a frontier
 
-        self.frontiers = set()  # set not list because it can avoid duplicate frontiers
+        self.frontiers = set()  # set not list because it can avoid duplicate frontiers, saves coordinate of all known frontiers 
 
+        #search map data for unexplored points (represented by -1)
         for x in range(self.map_width):
             for y in range(self.map_height):
                 if self.map_2d_array[y, x] == -1:
-                    # Check the 4 surrounding cells (top, bottom, left, and right)
+                    # check the 4 surrounding cells (top, bottom, left, and right)
                     neighbors = [(x+1, y), (x-1, y), (x, y+1), (x, y-1)]
+                    # check frontiers set for duplicates
                     for nx, ny in neighbors:
                         if 0 <= nx < self.map_width and 0 <= ny < self.map_height and self.map_2d_array[ny, nx] == 0:
                             self.frontiers.add((x, y))
@@ -181,6 +190,7 @@ class MapExplorer(Node):
 
         self.scores = {}  # Use a dictionary to store scores for each frontier tuple
 
+        # assign a score to each frontier
         for frontier in self.frontiers:
             x, y = frontier
             score = 0
@@ -220,7 +230,7 @@ class MapExplorer(Node):
                 self.update_waypoints()
 
 
-
+    # sets next waypoint/ frontier for robot to travel to 
     def update_waypoints(self):
         print("updating waypoint")
         if not self.scores:

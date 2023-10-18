@@ -3,6 +3,8 @@ import rclpy
 from rclpy.node import Node
 from nav2_msgs.msg import BehaviorTreeLog
 from nav_msgs.msg import OccupancyGrid
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 import numpy as np
 import matplotlib.pyplot as plt
@@ -231,26 +233,61 @@ class MapExplorer(Node):
 
 
     # sets next waypoint/ frontier for robot to travel to 
-    def update_waypoints(self):
+    # def update_waypoints(self):
+    #     print("updating waypoint")
+    #     if not self.scores:
+    #         return  # No scores available, nothing to publish
+
+    #     highest_score_frontier = max(self.scores, key=self.scores.get)
+
+    #     # check if could not compute path to pose, then update waypoint to second highest score
+    #     if self.path_compute_error and self.scores: # add condition to check that self.scores is not empty
+    #         print(f"removing path error waypoint: {highest_score_frontier}")
+    #         self.scores.pop(highest_score_frontier)  # Remove the highest score frontier
+    #         if self.scores: # check that self.scores is not empty
+    #             highest_score_frontier = max(self.scores, key=self.scores.get)
+    #             print(f"now going to {highest_score_frontier}")
+    #         else:
+    #             print("done for the day")
+
+    #     x, y = highest_score_frontier
+
+    #     map_x, map_y = self.robot_to_map_coordinates(x, y)
+
+    # trying clustering algorithm to set next waypoint frontier
+    def update_waypoints(self, max_clusters=10):
         print("updating waypoint")
         if not self.scores:
             return  # No scores available, nothing to publish
 
-        highest_score_frontier = max(self.scores, key=self.scores.get)
+        # Convert self.scores to a list of (x, y) coordinates
+        waypoints = list(self.scores.keys())
 
-        # check if could not compute path to pose, then update waypoint to second highest score
-        if self.path_compute_error and self.scores: # add condition to check that self.scores is not empty
-            print(f"removing path error waypoint: {highest_score_frontier}")
-            self.scores.pop(highest_score_frontier)  # Remove the highest score frontier
-            if self.scores: # check that self.scores is not empty
-                highest_score_frontier = max(self.scores, key=self.scores.get)
-                print(f"now going to {highest_score_frontier}")
-            else:
-                print("done for the day")
+        if self.path_compute_error and self.scores:
+            print("Determining the optimal number of clusters...")
+            best_num_clusters = self.find_optimal_num_clusters(waypoints, max_clusters)
+            print(f"Optimal number of clusters: {best_num_clusters}")
 
-        x, y = highest_score_frontier
+            kmeans = KMeans(n_clusters=best_num_clusters)
+            kmeans.fit(waypoints)
+
+            # Get the cluster centers
+            cluster_centers = kmeans.cluster_centers_
+
+            # Select the cluster with the highest score
+            highest_score_cluster = max(cluster_centers, key=lambda center: self.scores[tuple(center)])
+
+            # Calculate the nearest waypoint in the selected cluster
+            nearest_waypoint = min(waypoints, key=lambda waypoint: abs(waypoint[0] - highest_score_cluster[0]) + abs(waypoint[1] - highest_score_cluster[1])
+
+            print(f"Going to waypoint in the highest scoring cluster: {nearest_waypoint}")
+            x, y = nearest_waypoint
+        else:
+            highest_score_frontier = max(self.scores, key=self.scores.get)
+            x, y = highest_score_frontier
 
         map_x, map_y = self.robot_to_map_coordinates(x, y)
+
 
         # Create the waypoint message
         waypoint_msg = PoseStamped()
@@ -268,7 +305,18 @@ class MapExplorer(Node):
         self.pose_publisher_.publish(waypoint_msg)
 
         return None
+    # to automaticcally determine the number of clusters in ur algorithm
+    def find_optimal_num_clusters(self, data, max_clusters):
+        silhouette_scores = []
 
+        for k in range(2, max_clusters + 1):
+            kmeans = KMeans(n_clusters=k)
+            labels = kmeans.fit_predict(data)
+            silhouette_scores.append(silhouette_score(data, labels))
+
+        best_num_clusters = silhouette_scores.index(max(silhouette_scores)) + 2  # Add 2 to account for starting from 2 clusters
+
+        return best_num_clusters
 
 
 def main(args=None):

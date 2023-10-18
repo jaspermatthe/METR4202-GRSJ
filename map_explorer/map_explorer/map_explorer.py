@@ -160,14 +160,14 @@ class MapExplorer(Node):
 
 
     def frontier_finder(self):
-        # for each -1 (unexplored) cell, see if neighbouring 8 cells are 0, if so then mark the unexplored cell as a frontier
+        # for each -1 (unexplored) cell, see if neighbouring 4 cells are 0, if so then mark the unexplored cell as a frontier
 
         self.frontiers = set() # set not list because can avoid duplicate frontiers
 
         for x in range(self.map_width):
             for y in range(self.map_height):
                 if self.map_2d_array[y, x] == -1:
-                    # Check the 8 surrounding cells
+                    # Check the 4 surrounding cells
                     neighbors = [(x+1, y), (x-1, y), (x, y+1), (x, y-1),
                                  (x+1, y+1), (x-1, y-1), (x+1, y-1), (x-1, y+1)]
                     for nx, ny in neighbors:

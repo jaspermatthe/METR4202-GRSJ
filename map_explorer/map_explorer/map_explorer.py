@@ -156,12 +156,15 @@ class MapExplorer(Node):
             plt.close()
 
 
+
+
+
     # Fix 8 point frontier to 4 point frontier
     def frontier_finder(self):
         # for each -1 (unexplored) cell, see if neighboring 4 cells are 0, if so then mark the unexplored cell as a frontier
-    
+
         self.frontiers = set()  # set not list because it can avoid duplicate frontiers
-    
+
         for x in range(self.map_width):
             for y in range(self.map_height):
                 if self.map_2d_array[y, x] == -1:

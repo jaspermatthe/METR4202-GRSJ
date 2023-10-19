@@ -278,7 +278,7 @@ class MapExplorer(Node):
             highest_score_cluster = max(cluster_centers, key=lambda center: self.scores[tuple(center)])
 
             # Calculate the nearest waypoint in the selected cluster
-            nearest_waypoint = min(waypoints, key=lambda waypoint: abs(waypoint[0] - highest_score_cluster[0]) + abs(waypoint[1] - highest_score_cluster[1])
+            nearest_waypoint = min(waypoints, key=lambda waypoint: abs(waypoint[0] - highest_score_cluster[0]) + abs(waypoint[1] - highest_score_cluster[1]))
 
             print(f"Going to waypoint in the highest scoring cluster: {nearest_waypoint}")
             x, y = nearest_waypoint

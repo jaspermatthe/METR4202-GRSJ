@@ -130,26 +130,46 @@ class MappingNode(Node):
         pass
 
     def score_waypoints(self):
-        # Transform frontiers to map coordinates
-        print(self.unoc_unex_obst)
+        print("in score_waypoints function")
+
+        # Transform frontiers from grid to map coordinates
         self.map_unoc_unex_obst = self.grid_to_map_coordinates(self.unoc_unex_obst)
-        print(self.map_unoc_unex_obst)
+        self.map_unoc_unex = self.grid_to_map_coordinates(self.unoc_unex)
 
-        # Closest unoccupied-unexplored-obstacle pixels
-        # this allows robot to map out along the walls
+        # 1. Closest unoccupied-unexplored-obstacle pixels
+        # This allows robot to follow walls
+        self.wall_frontier_scores = {}
+        for frontier in self.map_unoc_unex_obst:
+            x, y = frontier
+            score = 0
 
-        # Densest unoccupied-unexplored pixels
+            # Compute frontier distance from current pose
+            euclidean_distance = ((x - self.robot_x)**2 + (y - self.robot_y)**2)**0.5
 
+            # Assign highest score to frontier closest to current pose
+            score = 1 / euclidean_distance
+
+            self.wall_frontier_scores[frontier] = score
+
+        # 2. Densest unoccupied-unexplored pixels
 
         pass
 
-    def grid_to_map_coordinates(self, coordinates_set):
+    def grid_to_map_coordinates(self, grid_coordinates_set):
         map_coordinates_set = set()
-        for x, y in coordinates_set:
+        for x, y in grid_coordinates_set:
             map_x = x * self.map_resolution + self.map_origin_x
             map_y = y * self.map_resolution + self.map_origin_y
             map_coordinates_set.add((map_x, map_y))
         return map_coordinates_set
+    
+    def map_to_grid_coordinates(self, map_coordinates_set):
+        grid_coordinates_set = set()
+        for x, y in map_coordinates_set:
+            grid_x = (x - self.map_origin_x) / self.map_resolution
+            grid_y = (y - self.map_origin_y) / self.map_resolution
+            grid_coordinates_set.add((grid_x, grid_y))
+        return grid_coordinates_set
     
     def send_waypoint(self):
         print("in send_waypoint functions")
@@ -157,8 +177,20 @@ class MappingNode(Node):
         # Create the waypoint message
         waypoint_msg = PoseStamped()
         waypoint_msg.header.frame_id = "map"
-        waypoint_msg.pose.position.x = 1.5  # Set x-coordinate
-        waypoint_msg.pose.position.y = 1.5  # Set y-coordinate
+
+        # If no waypoints, go to center of map
+        if not self.wall_frontier_scores:
+            waypoint_msg.pose.position.x = 1.5
+            waypoint_msg.pose.position.y = 1.5
+
+        elif self.wall_frontier_scores:
+            highest_scoring_frontier = max(self.wall_frontier_scores, key=self.wall_frontier_scores.get)
+            x, y = highest_scoring_frontier
+            waypoint_msg.pose.position.x = x  
+            waypoint_msg.pose.position.y = y
+
+        else:
+            print("WELP, this is bad")
 
         self.goal_publisher_.publish(waypoint_msg)
 
@@ -188,22 +220,26 @@ class MappingNode(Node):
         # Convert coordinate systems
 
 
-        # Plot
+        # Plot occupancy array on first figure (ax1)
         self.rotated_map =  np.fliplr(np.rot90(self.map_2d_occupancy_array, k=1))
         ax1.imshow(self.rotated_map, cmap=cmap, norm=norm)
-        # Set the extent of ax2 to match the extent of ax1 (occupancy grid)
+
+        # Set the extent of ax2 to match the extent of ax1
         ax2.set_xlim(ax1.get_xlim())
         ax2.set_ylim(ax1.get_ylim())
+
         # Set the aspect ratio of both axes to equal
         ax1.set_aspect('equal')
         ax2.set_aspect('equal')
 
+        # Scatter plot the unoccupied-unexplored frontiers on the second figure (ax2)
         if self.unoc_unex:
             # Rotate, and transform coordinates
             unoc_unex_x, unoc_unex_y = zip(*self.unoc_unex)
             unoc_unex_rotated= [(self.map_height - y, self.map_width - x) for x, y in zip(unoc_unex_x, unoc_unex_y)]
             ax2.scatter(*zip(*unoc_unex_rotated), c='pink', marker='x', s=5)
 
+        # Scatter plot the unoccupied-unexplored-obstacle frontiers on the second figure (ax2)
         if self.unoc_unex_obst:
             # Rotate, and transform coordinates
             unoc_unex_obst_x, unoc_unex_obst_y = zip(*self.unoc_unex_obst)
@@ -211,6 +247,8 @@ class MappingNode(Node):
             ax2.scatter(*zip(*unoc_unex_obst_rotated), c='teal', marker='s', s=5)
 
 
+        # Plot the goal pose
+        
 
         # Save file
         save_dir = "/home/jasper/turtlebot3_ws/src/map_explorer/map_explorer"

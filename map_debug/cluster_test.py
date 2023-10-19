@@ -1,4 +1,3 @@
-# CLUSTERING ALGORITHM
 # import necessary libraries
 import rclpy
 from rclpy.node import Node

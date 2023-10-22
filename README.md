@@ -1,6 +1,6 @@
 # Map Explorer with ROS for Team 12
 Welcome to the Map Explorer project for Team 12! This README provides instructions on how to set up and run our code and exploration strategy.    
-Jasper Matthè 48161136  
+Jasper Matthé 48161136  
 Ramtin Radnia 45890921  
 Gregorio Boccaccini 48175003  
 Sajal Gururani 47395952  
@@ -56,10 +56,10 @@ ros2 run map_explorer map_explorer
     
 Alternatively, you can use:
 ```
-python3 FULL/PATH/TO/PYTHON_FILE
+python3 FULL/PATH/TO/MAP_EXPLORER_PYTHON_FILE
 ```
 
-## Additional Commands
+# Additional Commands
 Here are some helpful commands you might use during the development and testing phases:
 
 ## Move the bot to specified position and orientation:

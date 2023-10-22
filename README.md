@@ -1,9 +1,9 @@
 # Map Explorer with ROS for Team 12
 Welcome to the Map Explorer project for Team 12! This README provides instructions on how to set up and run our code and exploration strategy. 
-Jasper Matthè 48161136
-Ramtin Radnia 45890921
-Gregorio Boccaccini 48175003
-Sajal Gururani 47395952
+Jasper Matthè 48161136  
+Ramtin Radnia 45890921  
+Gregorio Boccaccini 48175003  
+Sajal Gururani 47395952  
 
 ## 1. Clone the Repository
 Firstly, clone the 'map_explorer' repository into your ROS 2 workspace 'src' folder:

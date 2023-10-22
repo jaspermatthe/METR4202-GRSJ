@@ -92,12 +92,102 @@ class MappingNode(Node):
 
     # Find unoccupied-unexplored frontiers
     def find_waypoints(self):
-        # Your code for finding unoccupied-unexplored frontiers
+        # Use occupancy array to find waypoints
+        print("in find_waypoints function")
+
+        # Find boundary where unnocupied (0), unexplored (-1), and obstacles (100) meet
+        self.unoc_unex_obst = set()
+        for x in range(self.map_width):
+            for y in range(self.map_height):
+                if self.map_2d_occupancy_array[y, x] == 0:
+                    # check the 4 surrounding cells (top, bottom, left, and right)
+                    neighbors = [(x+1, y), (x-1, y), (x, y+1), (x, y-1), (x+1, y+1), (x-1, y-1), (x-1, y+1), (x+1, y-1)]
+                    is_unexplored_found = False
+                    is_obstacle_found = False
+
+                    for nx, ny in neighbors:
+                        if 0 <= nx < self.map_width and 0 <= ny < self.map_height:
+                            if self.map_2d_occupancy_array[ny, nx] == -1:
+                                is_unexplored_found = True
+                            elif self.map_2d_occupancy_array[ny, nx] == 100:
+                                is_obstacle_found = True
+
+                    if is_unexplored_found and is_obstacle_found:
+                        self.unoc_unex_obst.add((x, y))
+
+        # Find boundary between unoccupied (0), unexplored (-1)
+        self.unoc_unex = set()
+        for x in range(self.map_width):
+            for y in range(self.map_height):
+                if self.map_2d_occupancy_array[y, x] == 0:
+                    # check the 4 surrounding cells (top, bottom, left, and right)
+                    neighbors = [(x+1, y), (x-1, y), (x, y+1), (x, y-1)]
+                    for nx, ny in neighbors:
+                        if 0 <= nx < self.map_width and 0 <= ny < self.map_height and self.map_2d_occupancy_array[ny, nx] == -1:
+                            self.unoc_unex.add((x, y))
+                            break
+
         pass
+
 
     # Score frontiers based on distance to robot
     def score_waypoints(self):
-        # Your code for scoring frontiers based on distance to the robot
+        print("in score_waypoints function")
+
+        # Transform frontiers from grid to map coordinates
+        self.map_unoc_unex_obst = self.grid_to_map_coordinates(self.unoc_unex_obst)
+        self.map_unoc_unex = self.grid_to_map_coordinates(self.unoc_unex)
+
+        # 1. Closest unoccupied-unexplored-obstacle pixels
+        # This allows robot to follow walls
+        self.wall_frontier_scores = {}
+        for frontier in self.map_unoc_unex_obst:
+            x, y = frontier
+            score = 0
+
+            # Compute frontier distance from current pose
+            euclidean_distance = ((x - self.robot_x)**2 + (y - self.robot_y)**2)**0.5
+
+            # Assign highest score to frontier closest to current pose
+            # Ensure that euclidean_distance is not zero before division
+            if euclidean_distance > 0:
+                score = 1 / euclidean_distance
+
+            self.wall_frontier_scores[frontier] = score
+
+        # 2. Densest unoccupied-unexplored pixels and distance to the latter
+        self.dense_frontier_scores = {}  # Use a dictionary to store scores for each frontier tuple
+        for frontier in self.map_unoc_unex:
+            x, y = frontier
+            score = 0   
+
+            # adjust score higher for density of 
+            distance_scaling = 0.6
+            
+            # Calculate the score based on proximity to other frontiers
+            for other_frontier in self.map_unoc_unex:
+                if frontier == other_frontier:
+                    continue  # Skip comparing a frontier to itself
+                other_x, other_y = other_frontier
+
+                euclidean_distance = ((x - other_x) ** 2 + (y - other_y) ** 2) ** 0.5
+
+                # You may want to use a scaling factor to control the impact of distance on the score
+                # Ensure that euclidean_distance is not zero before division
+                if euclidean_distance > 0:
+                    score += 1 / euclidean_distance
+
+            self.wall_frontier_scores[frontier] = score
+
+            # Compute frontier distance from current pose
+            euclidean_distance = ((x - self.robot_x)**2 + (y - self.robot_y)**2)**0.5
+
+            # Assign highest score to frontier closest to current pose
+            score += distance_scaling * (1 / euclidean_distance)
+            
+
+            self.dense_frontier_scores[frontier] = score
+
         pass
 
     # Helper function to transform grid coordinates to map coordinates
@@ -118,7 +208,45 @@ class MappingNode(Node):
     
     # Send the highest-scoring waypoint as a goal
     def send_waypoint(self):
-        # Your code to send the highest-scoring waypoint as a goal
+        print("in send_waypoint functions")
+
+        # strategy = "dense"
+        strategy = "walls"
+        # Create the waypoint message
+        waypoint_msg = PoseStamped()
+        waypoint_msg.header.frame_id = "map"
+
+        # If no waypoints, go to center of map
+        if not self.map_callback_check:
+            print("sending waypoint to origin")
+            waypoint_msg.pose.position.x = 0.0
+            waypoint_msg.pose.position.y = 0.0
+
+        elif self.dense_frontier_scores:
+
+            if strategy == "dense":
+                print("computing highest density frontier...")
+                highest_scoring_frontier = max(self.dense_frontier_scores, key=self.dense_frontier_scores.get)
+                x, y = highest_scoring_frontier
+                waypoint_msg.pose.position.x = x  
+                waypoint_msg.pose.position.y = y
+
+            elif strategy == "walls":
+                print("computing closest wall frontier...")
+                highest_scoring_frontier = max(self.wall_frontier_scores, key=self.wall_frontier_scores.get)
+                x, y = highest_scoring_frontier
+                waypoint_msg.pose.position.x = x  
+                waypoint_msg.pose.position.y = y
+
+        else:
+            print("WELP, we're done")
+
+        print(f"my patience is {self.patience}")
+
+        if self.patience == False:
+            print(f'going to (x: {waypoint_msg.pose.position.x}, y: {waypoint_msg.pose.position.y})')
+            self.goal_publisher_.publish(waypoint_msg)
+
         pass
 
     # Robot brain to control the exploration strategy

@@ -40,7 +40,7 @@ ros2 launch slam_toolbox online_async_launch.py
 In a new terminal, start the navigation stack:
 ```
 ros2 launch nav2_bringup navigation_launch.py
-```
+```  
 (this was found on https://navigation.ros.org/tutorials/docs/navigation2_with_slam.html)
 
 ## Check available topics to see if subscriptions/publications are working

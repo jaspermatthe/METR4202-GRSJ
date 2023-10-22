@@ -53,6 +53,10 @@ class MappingNode(Node):
         self.map_callback_check = False
         self.patience = False
 
+        self.idle_start_time = None  # will store the start time of the IDLE state
+        self.idle_duration_threshold = 10.0  # set the threshold for how long IDLE is too long, e.g., 10 seconds
+
+
 
         # Create a timer to run the robot_brain at a fixed rate (e.g., every 1 second)
         self.timer_period = 1  # in seconds
@@ -90,31 +94,24 @@ class MappingNode(Node):
         print(f'pose is x: {self.robot_x}, y: {self.robot_y}, z: {self.robot_z}')
         pass
 
-    def bt_callback(self, msg):
-        # Check the behavior tree and update robot's behavior accordinly
+    def bt_callback(self, msg:BehaviorTreeLog):
+        # Check the behavior tree and update robot's behavior accordingly
         print("in bt_callback function")
         self.bt_callback_check = True
 
-        # for event in msg.event_log:
-            # if going to waypoint, do not re-send waypoints until reached or idle
-            # if event.node_name == 'FollowPath' and event.current_status == 'RUNNING':
-            #     print("going to waypoint, please be patient...")
-            #     self.patience = True
-            #     self.robot_brain()
+        for event in msg.event_log:
+            # if in navigation recovery mode, update waypoint
+            if event.node_name == 'NavigateRecovery' and event.current_status == 'IDLE':
+                print("found out that NavigateRecovery is idling")
+                if self.idle_start_time is None:
+                    self.idle_start_time = time.time()
+            else:
+                # If status is not IDLE, reset the idle_start_time
+                self.idle_start_time = None
 
-
-            # if reached waypoint, re-find, score, and send waypoint
-            # if event.node_name == 'FollowPath' and event.current_status == 'SUCCESS' or event.current_status == 'IDLE':
-            #     print("reached waypoint, re-computing path...")
-            #     self.patience = False
-            #     self.robot_brain()
-
-            # if unable to reach waypoint, re-find, score, and send waypoint
-            # if event.node_name == 'NavigateRecovery' and event.current_status == 'IDLE':
-            #     print("unable to reach waypoint, re-computing path...")
-            #     self.patience = False
-            #     self.robot_brain()
-
+        if self.idle_start_time is not None and (time.time() - self.idle_start_time) > self.idle_duration_threshold:
+            print("Robot has been IDLE for too long!")
+            # self.handle_protracted_idle()  # A method to handle the prolonged IDLE state
 
         pass
 
@@ -184,11 +181,11 @@ class MappingNode(Node):
         self.dense_frontier_scores = {}  # Use a dictionary to store scores for each frontier tuple
         for frontier in self.map_unoc_unex:
             x, y = frontier
-            score = 0   
+            score = 0
 
-            # adjust score higher for density of 
-            distance_scaling = 0.6
-            
+            density_weight = 0.5
+            distance_weight = 1 - density_weight
+
             # Calculate the score based on proximity to other frontiers
             for other_frontier in self.map_unoc_unex:
                 if frontier == other_frontier:
@@ -200,7 +197,7 @@ class MappingNode(Node):
                 # You may want to use a scaling factor to control the impact of distance on the score
                 # Ensure that euclidean_distance is not zero before division
                 if euclidean_distance > 0:
-                    score += 1 / euclidean_distance
+                    score += density_weight* 1 / euclidean_distance
 
             self.wall_frontier_scores[frontier] = score
 
@@ -208,8 +205,8 @@ class MappingNode(Node):
             euclidean_distance = ((x - self.robot_x)**2 + (y - self.robot_y)**2)**0.5
 
             # Assign highest score to frontier closest to current pose
-            score += distance_scaling * (1 / euclidean_distance)
-            
+            score += distance_weight * (1 / euclidean_distance)
+
 
             self.dense_frontier_scores[frontier] = score
 
@@ -222,13 +219,13 @@ class MappingNode(Node):
             map_y = y * self.map_resolution + self.map_origin_y
             map_coordinates_set.add((map_x, map_y))
         return map_coordinates_set
-    
+
     def map_to_grid_coordinates(self, map_coordinates):
         x, y = map_coordinates
         grid_x = int((x - self.map_origin_x) / self.map_resolution)
         grid_y = int((y - self.map_origin_y) / self.map_resolution)
         return grid_x, grid_y
-    
+
     def send_waypoint(self):
         print("in send_waypoint functions")
 
@@ -284,7 +281,7 @@ class MappingNode(Node):
         if not self.map_callback_check:
             print("no map callback yet")
             return
-        
+
         self.find_waypoints()
         self.score_waypoints()
         self.send_waypoint()
@@ -345,10 +342,10 @@ class MappingNode(Node):
             ax2.scatter(*zip(*rotated_highest_scoring_frontier), color='yellow', marker='o', linestyle='-')
 
             pass
-        
+
 
         # Save file
-        save_dir = "/home/jasper/turtlebot3_ws/src/map_explorer/map_explorer"
+        save_dir = "/home/gbocca/ros2_ws/src/map_explorer/map_explorer"
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         save_file = os.path.join(save_dir, "map_plot.png")
@@ -362,7 +359,7 @@ class MappingNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = MappingNode()
-    
+
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

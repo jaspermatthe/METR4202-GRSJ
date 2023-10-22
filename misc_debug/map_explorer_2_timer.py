@@ -48,6 +48,7 @@ class MappingNode(Node):
             10
         )
 
+        # Flags to track callback statuses
         self.bt_callback_check = False
         self.pose_callback_check = False
         self.map_callback_check = False
@@ -60,7 +61,7 @@ class MappingNode(Node):
         self.last_robot_brain_time = time.time()
 
 
-
+    # Callback used to process map data
     def map_callback(self, msg):
         # Get map info: width, height, resolution, and origin
         # Reshape, re-orientate map, and save map as a 2D occupancy array
@@ -79,6 +80,7 @@ class MappingNode(Node):
 
         pass
 
+    # Odometry callback to update robot's pose
     def pose_callback(self, msg):
         # Using odometry subscription to get pose because of conflict with PoseStamped publisher
         print("in pose_callback function")
@@ -90,6 +92,7 @@ class MappingNode(Node):
         print(f'pose is x: {self.robot_x}, y: {self.robot_y}, z: {self.robot_z}')
         pass
 
+    # Behavior Tree callback to update robot's behavior
     def bt_callback(self, msg):
         # Check the behavior tree and update robot's behavior accordinly
         print("in bt_callback function")
@@ -118,6 +121,7 @@ class MappingNode(Node):
 
         pass
 
+    # Find unoccupied-unexplored frontiers
     def find_waypoints(self):
         # Use occupancy array to find waypoints
         print("in find_waypoints function")
@@ -156,6 +160,7 @@ class MappingNode(Node):
 
         pass
 
+    # Score frontiers based on distance to robot
     def score_waypoints(self):
         print("in score_waypoints function")
 
@@ -186,7 +191,7 @@ class MappingNode(Node):
             x, y = frontier
             score = 0   
 
-            # adjust score higher for density of 
+            # Weight for scoring based on distance (higher values favor closer frontiers)
             distance_scaling = 0.6
             
             # Calculate the score based on proximity to other frontiers
@@ -197,7 +202,7 @@ class MappingNode(Node):
 
                 euclidean_distance = ((x - other_x) ** 2 + (y - other_y) ** 2) ** 0.5
 
-                # You may want to use a scaling factor to control the impact of distance on the score
+                # Scaling factor to control the impact of distance on the score
                 # Ensure that euclidean_distance is not zero before division
                 if euclidean_distance > 0:
                     score += 1 / euclidean_distance
@@ -210,11 +215,12 @@ class MappingNode(Node):
             # Assign highest score to frontier closest to current pose
             score += distance_scaling * (1 / euclidean_distance)
             
-
+            # # Calculate and assign a score for a dense frontier
             self.dense_frontier_scores[frontier] = score
 
         pass
 
+    # Helper function to transform grid coordinates to map coordinates
     def grid_to_map_coordinates(self, grid_coordinates_set):
         map_coordinates_set = set()
         for x, y in grid_coordinates_set:
@@ -222,13 +228,15 @@ class MappingNode(Node):
             map_y = y * self.map_resolution + self.map_origin_y
             map_coordinates_set.add((map_x, map_y))
         return map_coordinates_set
-    
+
+    # Helper function to transform map coordinates to grid coordinates
     def map_to_grid_coordinates(self, map_coordinates):
         x, y = map_coordinates
         grid_x = int((x - self.map_origin_x) / self.map_resolution)
         grid_y = int((y - self.map_origin_y) / self.map_resolution)
         return grid_x, grid_y
-    
+
+    # Send the highest-scoring waypoint as a goal
     def send_waypoint(self):
         print("in send_waypoint functions")
 
@@ -244,12 +252,16 @@ class MappingNode(Node):
             waypoint_msg.pose.position.x = 0.0
             waypoint_msg.pose.position.y = 0.0
 
+        # Check if there are dense frontiers available for exploration
         elif self.dense_frontier_scores:
 
+            # Determine the exploration strategy
             if strategy == "dense":
                 print("computing highest density frontier...")
                 highest_scoring_frontier = max(self.dense_frontier_scores, key=self.dense_frontier_scores.get)
+                # Extract the coordinates of the selected frontier
                 x, y = highest_scoring_frontier
+                # Set the waypoint position to the selected frontier
                 waypoint_msg.pose.position.x = x  
                 waypoint_msg.pose.position.y = y
 
@@ -265,15 +277,17 @@ class MappingNode(Node):
 
         print(f"my patience is {self.patience}")
 
+        # Check if the robot is not in a state of patience (able to move)
         if self.patience == False:
+            # Print the coordinates of the selected waypoint
             print(f'going to (x: {waypoint_msg.pose.position.x}, y: {waypoint_msg.pose.position.y})')
+            # Publish the selected waypoint for the robot to navigate
             self.goal_publisher_.publish(waypoint_msg)
 
         pass
 
 
-
-
+    # The decision-making function for the robot's exploration strategy.
     def robot_brain(self):
         print("in robot_brain function")
         current_time = time.time()
@@ -294,6 +308,7 @@ class MappingNode(Node):
         # Update the last robot_brain time
         self.last_robot_brain_time = current_time
 
+    # Plot the occupancy grid map and frontier points for visualization.
     def plot_map(self):
         # Create a colormap for unexplored (-1, red), unoccupied (0, green), and obstacle (100, blue)
         cmap = plt.cm.colors.ListedColormap(['red', 'green', 'blue'])

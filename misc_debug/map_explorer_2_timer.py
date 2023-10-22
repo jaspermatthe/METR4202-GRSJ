@@ -98,27 +98,6 @@ class MappingNode(Node):
         print("in bt_callback function")
         self.bt_callback_check = True
 
-        # for event in msg.event_log:
-            # if going to waypoint, do not re-send waypoints until reached or idle
-            # if event.node_name == 'FollowPath' and event.current_status == 'RUNNING':
-            #     print("going to waypoint, please be patient...")
-            #     self.patience = True
-            #     self.robot_brain()
-
-
-            # if reached waypoint, re-find, score, and send waypoint
-            # if event.node_name == 'FollowPath' and event.current_status == 'SUCCESS' or event.current_status == 'IDLE':
-            #     print("reached waypoint, re-computing path...")
-            #     self.patience = False
-            #     self.robot_brain()
-
-            # if unable to reach waypoint, re-find, score, and send waypoint
-            # if event.node_name == 'NavigateRecovery' and event.current_status == 'IDLE':
-            #     print("unable to reach waypoint, re-computing path...")
-            #     self.patience = False
-            #     self.robot_brain()
-
-
         pass
 
     # Find unoccupied-unexplored frontiers
@@ -240,7 +219,6 @@ class MappingNode(Node):
     def send_waypoint(self):
         print("in send_waypoint functions")
 
-        # strategy = "dense"
         strategy = "walls"
         # Create the waypoint message
         waypoint_msg = PoseStamped()
@@ -302,7 +280,6 @@ class MappingNode(Node):
         self.find_waypoints()
         self.score_waypoints()
         self.send_waypoint()
-        # self.patience = True
         self.plot_map()
 
         # Update the last robot_brain time

@@ -184,11 +184,11 @@ class MappingNode(Node):
         self.dense_frontier_scores = {}  # Use a dictionary to store scores for each frontier tuple
         for frontier in self.map_unoc_unex:
             x, y = frontier
-            score = 0
+            score = 0   
 
-            density_weight = 0.5
-            distance_weight = 1 - density_weight
-
+            # adjust score higher for density of 
+            distance_scaling = 0.6
+            
             # Calculate the score based on proximity to other frontiers
             for other_frontier in self.map_unoc_unex:
                 if frontier == other_frontier:
@@ -200,7 +200,7 @@ class MappingNode(Node):
                 # You may want to use a scaling factor to control the impact of distance on the score
                 # Ensure that euclidean_distance is not zero before division
                 if euclidean_distance > 0:
-                    score += density_weight* 1 / euclidean_distance
+                    score += 1 / euclidean_distance
 
             self.wall_frontier_scores[frontier] = score
 
@@ -208,7 +208,7 @@ class MappingNode(Node):
             euclidean_distance = ((x - self.robot_x)**2 + (y - self.robot_y)**2)**0.5
 
             # Assign highest score to frontier closest to current pose
-            score += distance_weight * (1 / euclidean_distance)
+            score += distance_scaling * (1 / euclidean_distance)
             
 
             self.dense_frontier_scores[frontier] = score

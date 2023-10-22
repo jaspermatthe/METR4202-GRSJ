@@ -7,8 +7,8 @@ Sajal Gururani 47395952
 
 ## 1. Clone the Repository
 Firstly, clone the 'map_explorer' repository into your ROS 2 workspace 'src' folder:
-    cd ~/YOUR/ROS2/WORKSPACE/src
-    git clone https://github.com/jaspermatthe/METR4202-GRSJ/tree/f92455438588bd3292fd97b4614dac9fcffcc701/map_explorer
+    '''cd ~/YOUR/ROS2/WORKSPACE/src
+    git clone https://github.com/jaspermatthe/METR4202-GRSJ/tree/f92455438588bd3292fd97b4614dac9fcffcc701/map_explorer'''
 
 ## 2. Build the Package
 In a new terminal, navigate to your workspace and build the map_explorer package:

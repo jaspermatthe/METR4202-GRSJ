@@ -176,6 +176,7 @@ class MappingNode(Node):
         for frontier in self.map_unoc_unex:
             x, y = frontier
             score = 0
+            score_prox = 0
 
             # Calculate the score based on proximity to other frontiers
             for other_frontier in self.map_unoc_unex:
@@ -187,9 +188,11 @@ class MappingNode(Node):
 
                 # You may want to use a scaling factor to control the impact of distance on the score
                 score += 1 / euclidean_distance
+                proximity = ((x - self.robot_x)**2 + (y - self.robot_y)**2)**0.5
+                score_prox += 1/proximity
 
-            self.dense_frontier_scores[frontier] = score
-
+            self.dense_frontier_scores[frontier] = score*0.6 + score_prox*0.4  
+            
         pass
 
     def grid_to_map_coordinates(self, grid_coordinates_set):
